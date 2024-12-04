@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive GPA Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        table {
+            width: 100%;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        table, th, td {
+            border-collapse: collapse;
+            padding: 8px 10px;
+        }
+
+        input[type="text"], input[type="number"], select {
+            width: 95%;
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 1rem;
+        }
+
+        #add-course {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 48%;
+            font-size: 1rem;
+        }
+
+        #calculate-btn {
+            background-color: #28A745;
+            color: white;
+        }
+
+        #clear-btn {
+            background-color: #DC3545;
+            color: white;
+        }
+
+        #settings-btn {
+            background-color: #FFC107;
+            color: white;
+            width: 100%;
+            margin-bottom: 20px;
+            font-size: 1rem;
+        }
+
+        .result {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        #gpa-result {
+            font-weight: bold;
+        }
+
+        #settings-popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+        }
+
+        #close-settings {
+            background-color: #DC3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            float: right;
+        }
+
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+        }
+
+        @media screen and (max-width: 768px) {
+            h2 {
+                font-size: 1.3rem;
+            }
+
+            input[type="text"], input[type="number"], select {
+                width: 100%;
+                font-size: 0.9rem;
+            }
+
+            button {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+
+            table, th, td {
+                padding: 6px;
+            }
+
+            #add-course, #settings-btn {
+                font-size: 0.9rem;
+                padding: 8px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            h2 {
+                font-size: 1.2rem;
+            }
+
+            button {
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+
+            #add-course, #settings-btn {
+                font-size: 0.85rem;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>GPA Calculator</h2>
+        <table id="courses-table">
+            <tr>
+                <th>Course (optional)</th>
+                <th>Credits</th>
+                <th>Grade</th>
+            </tr>
+            <tr>
+                <td><input type="text" placeholder="Math"></td>
+                <td><input type="number" value="3" class="credits"></td>
+                <td>
+                    <select class="grade">
+                        <option value="4.0">A</option>
+                        <option value="3.7">A-</option>
+                        <option value="3.3">B+</option>
+                        <option value="3.0">B</option>
+                        <option value="2.7">B-</option>
+                        <option value="2.3">C+</option>
+                        <option value="2.0">C</option>
+                        <option value="1.7">C-</option>
+                        <option value="1.3">D+</option>
+                        <option value="1.0">D</option>
+                        <option value="0.7">D-</option>
+                        <option value="0.0">F</option>
+                    </select>
+                </td>
+            </tr>
+        </table>
+        <button id="add-course">+ add more courses</button>
+
+        <button id="settings-btn">Settings</button>
+
+        <div class="actions">
+            <button id="calculate-btn">Calculate</button>
+            <button id="clear-btn">Clear</button>
+        </div>
+
+        <div class="result">
+            <h3>Calculated GPA: <span id="gpa-result">N/A</span></h3>
+        </div>
+    </div>
+
+    <!-- Settings Popup -->
+    <div id="overlay"></div>
+    <div id="settings-popup">
+        <h3>Grade Format</h3>
+        <label><input type="radio" name="grade-format" value="Letter" checked> Letter</label><br>
+        <label><input type="radio" name="grade-format" value="Percentage"> Percentage</label><br>
+        <label><input type="radio" name="grade-format" value="Point Value"> Point Value</label><br>
+        <button id="close-settings">Close</button>
+    </div>
+
+    <script>
+        let gradeFormat = 'Letter'; // Default grade format
+
+        // Add new course row
+        document.getElementById('add-course').addEventListener('click', function() {
+            const table = document.getElementById('courses-table');
+            const newRow = table.insertRow();
+            
+            const courseCell = newRow.insertCell(0);
+            const creditsCell = newRow.insertCell(1);
+            const gradeCell = newRow.insertCell(2);
+            
+            courseCell.innerHTML = '<input type="text" placeholder="Course">';
+            creditsCell.innerHTML = '<input type="number" value="3" class="credits">';
+            gradeCell.innerHTML = getGradeInput();
+        });
+
+        // Generate grade input based on selected grade format
+        function getGradeInput() {
+            if (gradeFormat === 'Letter') {
+                return `
+                    <select class="grade">
+                        <option value="4.0">A</option>
+                        <option value="3.7">A-</option>
+                        <option value="3.3">B+</option>
+                        <option value="3.0">B</option>
+                        <option value="2.7">B-</option>
+                        <option value="2.3">C+</option>
+                        <option value="2.0">C</option>
+                        <option value="1.7">C-</option>
+                        <option value="1.3">D+</option>
+                        <option value="1.0">D</option>
+                        <option value="0.7">D-</option>
+                        <option value="0.0">F</option>
+                    </select>
+                `;
+            } else if (gradeFormat === 'Percentage') {
+                return '<input type="number" class="grade" placeholder="Enter %" min="0" max="100">';
+            } else {
+                return '<input type="number" class="grade" placeholder="Enter point value" min="0" max="4.0" step="0.1">';
+            }
+        }
+
+        // Calculate GPA
+        document.getElementById('calculate-btn').addEventListener('click', function() {
+            let totalCredits = 0;
+            let totalPoints = 0;
+            
+            const rows = document.querySelectorAll('#courses-table tr');
+            rows.forEach((row, index) => {
+                if (index === 0) return; // Skip header
+                
+                const credits = parseFloat(row.querySelector('.credits').value);
+                let grade = parseFloat(row.querySelector('.grade').value);
+                
+                if (gradeFormat === 'Percentage') {
+                    grade = percentageToGPA(grade);
+                }
+
+                totalCredits += credits;
+                totalPoints += credits * grade;
+            });
+
+            const gpa = totalPoints / totalCredits;
+            document.getElementById('gpa-result').textContent = gpa.toFixed(2);
+        });
+
+        // Convert percentage to GPA (example scale)
+        function percentageToGPA(percentage) {
+            if (percentage >= 90) return 4.0;
+            else if (percentage >= 85) return 3.7;
+            else if (percentage >= 80) return 3.3;
+            else if (percentage >= 75) return 3.0;
+            else if (percentage >= 70) return 2.7;
+            else if (percentage >= 65) return 2.3;
+            else if (percentage >= 60) return 2.0;
+            else if (percentage >= 55) return 1.7;
+            else if (percentage >= 50) return 1.3;
+            else if (percentage >= 45) return 1.0;
+            else return 0.0;
+        }
+
+        // Clear all inputs
+        document.getElementById('clear-btn').addEventListener('click', function() {
+            const table = document.getElementById('courses-table');
+            while (table.rows.length > 1) {
+                table.deleteRow(1);
+            }
+            document.getElementById('gpa-result').textContent = 'N/A';
+        });
+
+        // Open settings popup
+        document.getElementById('settings-btn').addEventListener('click', function() {
+            document.getElementById('settings-popup').style.display = 'block';
+            document.getElementById('overlay').style.display = 'block';
+        });
+
+        // Close settings popup
+        document.getElementById('close-settings').addEventListener('click', function() {
+            document.getElementById('settings-popup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        });
+
+        // Change grade format
+        document.querySelectorAll('input[name="grade-format"]').forEach(function(input) {
+            input.addEventListener('change', function() {
+                gradeFormat = this.value;
+                const gradeCells = document.querySelectorAll('table tr td:nth-child(3)');
+                gradeCells.forEach(function(cell) {
+                    cell.innerHTML = getGradeInput();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
